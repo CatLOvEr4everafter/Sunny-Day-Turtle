@@ -1,563 +1,455 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>電子燒烏龜儀式</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;600&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電子燒烏龜儀式 | Dynamic Turtle Burning</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;600&display=swap');
 
-  :root{
-    --ink: #f2e6d3;
-    --night: #14100f;
-    --night-2: #1d1613;
-    --ember: #ff6a3d;
-    --ember-2: #ffb347;
-    --gold: #d4a750;
-    --deep-red: #8c1f2b;
-    --paper: #f6e8c9;
-    --shell-green: #4a6b3f;
-    --shell-dark: #33482c;
-  }
+    :root{
+      --ink: #f2e6d3;
+      --night: #14100f;
+      --night-2: #1d1613;
+      --ember: #ff6a3d;
+      --ember-2: #ffb347;
+      --gold: #d4a750;
+      --paper: #f6e8c9;
+      --shell-green: #4a6b3f;
+      --shell-dark: #33482c;
+    }
 
-  *{ box-sizing:border-box; }
+    *{ box-sizing: border-box; }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    background:
-      radial-gradient(ellipse at 50% 120%, rgba(255,106,61,0.16), transparent 60%),
-      radial-gradient(ellipse at 80% -10%, rgba(140,31,43,0.22), transparent 55%),
-      var(--night);
-    font-family:'Noto Sans TC', sans-serif;
-    color: var(--ink);
-    padding: 40px 20px 80px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    position: relative;
-  }
+    body{
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 120%, rgba(255,106,61,0.16), transparent 60%),
+                  radial-gradient(ellipse at 50% -20%, #221714, #0d0a09 80%);
+      color: var(--ink);
+      font-family: 'Noto Sans TC', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px 40px;
+      overflow-x: hidden;
+    }
 
-  /* 語言切換選單樣式 */
-  .lang-picker {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 10;
-  }
-  .lang-picker select {
-    background: var(--night-2);
-    color: var(--gold);
-    border: 1px solid rgba(212,167,80,0.4);
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
-    cursor: pointer;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .lang-picker select:hover {
-    border-color: var(--ember-2);
-  }
+    .top-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
 
-  .hero{ text-align:center; margin-bottom: 30px; }
-  .hero .eyebrow{ letter-spacing:0.4em; font-size:12px; color:var(--gold); margin-bottom:10px; }
-  h1{
-    font-family:'Noto Serif TC', serif;
-    font-weight:900;
-    font-size: clamp(30px, 6.5vw, 48px);
-    margin:0;
-    background: linear-gradient(180deg, var(--ember-2), var(--ember) 60%, var(--deep-red));
-    -webkit-background-clip:text; background-clip:text; color:transparent;
-    letter-spacing:0.06em;
-  }
-  .hero p{
-    margin: 10px 0 0;
-    font-size: 13px;
-    color: rgba(242,230,211,0.5);
-  }
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+    }
 
-  .layout{
-    width:100%; max-width: 1000px;
-    display:grid;
-    grid-template-columns: 1fr 1.1fr;
-    gap: 32px;
-  }
-  @media (max-width: 820px){ .layout{ grid-template-columns: 1fr; } }
+    .lang-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(212,167,80,0.3);
+      color: #e6d8be;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
 
-  .panel{
-    background: var(--night-2);
-    border: 1px solid rgba(212,167,80,0.18);
-    border-radius: 4px;
-    padding: 26px 24px;
-  }
-  .panel h2{
-    font-family:'Noto Serif TC', serif;
-    font-size: 14px; letter-spacing:0.2em; color:var(--gold);
-    margin: 0 0 20px; font-weight:700;
-  }
-  label{ display:block; font-size:13px; color:rgba(242,230,211,0.65); margin-bottom:6px; margin-top:16px; }
-  label:first-of-type{ margin-top:0; }
-  input, textarea{
-    width:100%; background:var(--night); border:1px solid rgba(212,167,80,0.3);
-    border-radius:3px; padding:11px 12px; color:var(--ink);
-    font-family:'Noto Sans TC', sans-serif; font-size:15px; outline:none; transition:border-color .2s;
-  }
-  input:focus, textarea:focus{ border-color: var(--ember); }
-  textarea{ resize:vertical; min-height:64px; }
+    .lang-btn.active, .lang-btn:hover {
+      background: var(--gold);
+      color: #111;
+      border-color: var(--gold);
+      font-weight: 600;
+    }
 
-  #igniteBtn{
-    margin-top:24px; width:100%; padding:14px; border:none; border-radius:3px;
-    background: linear-gradient(120deg, var(--ember), var(--deep-red));
-    color: var(--paper); font-family:'Noto Serif TC', serif; font-weight:700;
-    font-size:16px; letter-spacing:0.1em; cursor:pointer; transition: transform .15s, box-shadow .15s, opacity .2s;
-  }
-  #igniteBtn:hover{ transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,106,61,0.28); }
-  #igniteBtn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+    .info-btn {
+      background: transparent;
+      border: 1px solid var(--ember-2);
+      color: var(--ember-2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
 
-  /* --- Stage --- */
-  .stage-wrap{
-    position:relative;
-    background: radial-gradient(ellipse at 50% 80%, rgba(255,106,61,0.1), transparent 70%), var(--night-2);
-    border: 1px solid rgba(212,167,80,0.18);
-    border-radius: 4px;
-    min-height: 380px;
-    display:flex; align-items:center; justify-content:center;
-    overflow:hidden;
-  }
+    .info-btn:hover {
+      background: rgba(255, 179, 71, 0.15);
+      box-shadow: 0 0 10px rgba(255, 179, 71, 0.3);
+    }
 
-  canvas#fx{
-    position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
-  }
+    h1 {
+      font-family: 'Noto Serif TC', serif;
+      color: var(--gold);
+      margin: 10px 0 6px;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-align: center;
+    }
 
-  #turtleBox{
-    position:relative;
-    width: 180px; height: 180px;
-    display:flex; align-items:center; justify-content:center;
-    z-index: 2;
-  }
+    p.subtitle {
+      color: #a89a85;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
 
-  #turtleBox svg{ width:150px; height:150px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4)); }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(29, 22, 19, 0.85);
+      border: 1px solid rgba(212, 167, 80, 0.25);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+    }
 
-  .charring #turtleBox svg .shell{ transition: fill 2.6s ease; }
-  .charring #turtleBox svg .part{ transition: fill 2.6s ease; }
-  .charring #turtleBox svg{ animation: shake 0.14s infinite; }
-  .charred #turtleBox svg{ animation:none; }
+    .form-group {
+      margin-bottom: 18px;
+    }
 
-  @keyframes shake{
-    0%{ transform: translate(0,0) rotate(0deg); }
-    25%{ transform: translate(1.5px,-1px) rotate(-1deg); }
-    50%{ transform: translate(-1.5px,1px) rotate(1deg); }
-    75%{ transform: translate(1px,1px) rotate(-0.5deg); }
-    100%{ transform: translate(0,0) rotate(0deg); }
-  }
+    label {
+      display: block;
+      color: var(--gold);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
 
-  .ashout #turtleBox{ animation: sink 1.6s ease forwards; }
-  @keyframes sink{
-    0%{ opacity:1; transform: scale(1) translateY(0); }
-    100%{ opacity:0; transform: scale(0.85) translateY(10px); }
-  }
+    input, textarea {
+      width: 100%;
+      background: rgba(10, 8, 7, 0.6);
+      border: 1px solid rgba(242, 230, 211, 0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--ink);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
 
-  .stage-wrap.sunny{
-    background: radial-gradient(ellipse at 50% 55%, rgba(255,196,102,0.35), transparent 65%), var(--night-2);
-    transition: background 1.8s ease;
-  }
+    input:focus, textarea:focus {
+      border-color: var(--ember-2);
+    }
 
-  #sun{
-    position:absolute;
-    top:50%; left:50%;
-    width: 140px; height:140px;
-    transform: translate(-50%,-50%) scale(0.7);
-    border-radius:50%;
-    background: radial-gradient(circle, #fff3c4 0%, #ffcc66 45%, rgba(255,204,102,0) 72%);
-    opacity:0;
-    transition: opacity 1.6s ease, transform 1.6s ease;
-    z-index:1;
-    pointer-events:none;
-  }
-  #sun.show{ opacity:1; transform: translate(-50%,-50%) scale(1); }
-  #sun .ray{
-    position:absolute; top:50%; left:50%;
-    width:2px; height:70px;
-    background: linear-gradient(180deg, rgba(255,204,102,0.55), transparent);
-    transform-origin: top center;
-    animation: spin 22s linear infinite;
-  }
-  @keyframes spin{ from{ transform: translate(-50%,0) rotate(0deg); } to{ transform: translate(-50%,0) rotate(360deg); } }
+    .turtle-canvas-container {
+      margin: 20px 0;
+      text-align: center;
+      position: relative;
+    }
 
-  /* --- Certificate --- */
-  .cert{
-    position:absolute; inset: 18px;
-    background: var(--paper);
-    color:#2a1810;
-    border-radius:2px;
-    padding: 30px 26px;
-    display:flex; flex-direction:column;
-    opacity:0; pointer-events:none;
-    transform: scale(0.96);
-    transition: opacity .6s ease, transform .6s ease;
-    z-index: 3;
-  }
-  .cert.show{ opacity:1; transform:scale(1); pointer-events:auto; }
-  .cert .seal{
-    position:absolute; top:18px; right:20px; width:46px; height:46px; border-radius:50%;
-    background: var(--deep-red); color: var(--paper); display:flex; align-items:center; justify-content:center;
-    font-family:'Noto Serif TC', serif; font-weight:900; font-size:13px; transform: rotate(-8deg);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-  }
-  .cert .title{
-    font-family:'Noto Serif TC', serif; font-weight:900; font-size:20px; color:var(--deep-red);
-    margin: 0 60px 18px 0; letter-spacing:0.08em;
-  }
-  .cert .row{ display:flex; gap:10px; padding:8px 0; border-top:1px dashed rgba(140,31,43,0.3); font-size:14px; }
-  .cert .row:first-of-type{ border-top:none; }
-  .cert .row .k{ flex:0 0 70px; font-weight:600; color:var(--deep-red); }
-  .cert .row .v{ flex:1; }
-  .cert .note{ margin-top:16px; padding-top:12px; border-top:1px solid rgba(140,31,43,0.25); font-size:13px; line-height:1.7; color:#5a4230; white-space:pre-wrap; }
-  .cert .stamp{ margin-top:auto; padding-top:14px; text-align:center; font-size:11px; letter-spacing:0.2em; color: rgba(42,24,16,0.4); }
+    svg.turtle-svg {
+      width: 220px;
+      height: 220px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+      transition: transform 0.5s, opacity 1s;
+    }
 
-  #stageLabel{
-    position:absolute; bottom:16px; left:0; right:0;
-    text-align:center; font-size:12px; letter-spacing:0.15em;
-    color: rgba(242,230,211,0.45);
-    z-index:2;
-  }
+    .burn-animation {
+      animation: burnAway 2.5s forwards ease-in-out;
+    }
 
-  .hint{
-    max-width:1000px; margin-top:20px; font-size:12px; color: rgba(242,230,211,0.4);
-    text-align:center; line-height:1.6;
-  }
-</style>
+    @keyframes burnAway {
+      0% { transform: scale(1); filter: drop-shadow(0 0 8px var(--ember)); }
+      30% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--ember)) brightness(1.5); }
+      70% { transform: scale(0.95); opacity: 0.6; filter: drop-shadow(0 0 40px #ff3300) brightness(2); }
+      100% { transform: scale(0.1); opacity: 0; filter: brightness(3); }
+    }
+
+    .btn-burn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--ember), #d9381e);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(255, 106, 61, 0.4);
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .btn-burn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(255, 106, 61, 0.6);
+    }
+
+    /* 彈出 Modal 樣式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #1d1613;
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      max-width: 580px;
+      width: 100%;
+      padding: 28px;
+      position: relative;
+      color: #e6d8be;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: #a89a85;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      color: var(--gold);
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.4rem;
+      margin-top: 0;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(212,167,80,0.2);
+      padding-bottom: 10px;
+    }
+
+    .modal-body p {
+      line-height: 1.6;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .timeline {
+      border-left: 2px solid var(--ember-2);
+      padding-left: 14px;
+      margin: 14px 0;
+    }
+
+    .timeline-item {
+      margin-bottom: 12px;
+    }
+
+    .timeline-title {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: #c9bc9c;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- 語言選擇器 -->
-  <div class="lang-picker">
-    <select id="langSelect" onchange="changeLanguage(this.value)">
-      <option value="zh-Hant" selected>繁體中文</option>
-      <option value="zh-Hans">简体中文</option>
-      <option value="en">English</option>
-    </select>
+  <div class="top-bar">
+    <button class="info-btn" onclick="openModal()">
+      <span>❓</span> <span data-i18n="infoBtn">儀式由來與用途</span>
+    </button>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLanguage('zh-TW')">繁中</button>
+      <button class="lang-btn" onclick="setLanguage('zh-CN')">简中</button>
+      <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+    </div>
   </div>
 
-  <div class="hero">
-    <div class="eyebrow" data-i18n="eyebrow">電 子 儀 式</div>
-    <h1 data-i18n="mainTitle">燒烏龜</h1>
-    <p data-i18n="subtitle">填妥資訊、點燃儀式之火，祈求活動當天萬里晴空。</p>
-  </div>
+  <h1 data-i18n="title">電子燒烏龜儀式</h1>
+  <p class="subtitle" data-i18n="subtitle">誠心畫龜．祈求晴空．撥雲見日</p>
 
-  <div class="layout">
-
-    <div class="panel">
-      <h2 data-i18n="panelTitle">儀 式 資 訊</h2>
-
-      <label for="place" data-i18n="lblPlace">地點</label>
-      <input id="place" type="text" data-i18n-ph="phPlace" placeholder="例：河堤空地 / 廟埕廣場">
-
-      <label for="date" data-i18n="lblDate">日期</label>
-      <input id="date" type="date">
-
-      <label for="time" data-i18n="lblTime">時間</label>
-      <input id="time" type="time">
-
-      <label for="note" data-i18n="lblNote">祈求的活動（選填）</label>
-      <textarea id="note" data-i18n-ph="phNote" placeholder="例：週末婚禮、畢業典禮、登山行程——祈求當天放晴"></textarea>
-
-      <button id="igniteBtn" onclick="ignite()" data-i18n="btnIgnite">點 燃 儀 式 之 火 · 祈 晴</button>
+  <div class="container">
+    <div class="form-group">
+      <label data-i18n="labelDate">祈晴日期與時間：</label>
+      <input type="text" id="targetDate" placeholder="例如：2026/08/15 全天">
     </div>
 
-    <div class="stage-wrap" id="stageWrap">
-      <canvas id="fx"></canvas>
-      <div id="turtleBox">
-        <svg viewBox="0 0 200 200">
-          <ellipse class="part" cx="100" cy="150" rx="16" ry="10" fill="#3c5230"/>
-          <ellipse class="part" cx="150" cy="150" rx="16" ry="10" fill="#3c5230"/>
-          <ellipse class="part" cx="55" cy="130" rx="14" ry="9" fill="#3c5230"/>
-          <ellipse class="part" cx="145" cy="130" rx="14" ry="9" fill="#3c5230"/>
-          <ellipse class="part" cx="40" cy="95" rx="18" ry="13" fill="#4a6b3f"/>
-          <circle class="part" cx="22" cy="90" r="10" fill="#4a6b3f"/>
-          <circle class="part" cx="18" cy="86" r="2.4" fill="#1c1c1c"/>
-          <ellipse class="shell" cx="115" cy="100" rx="70" ry="55" fill="#4a6b3f" stroke="#33482c" stroke-width="3"/>
-          <path class="shell" d="M115 55 L145 85 L145 115 L115 145 L85 115 L85 85 Z" fill="#5b7d4b" stroke="#33482c" stroke-width="2"/>
-          <path class="part" d="M60 100 L85 85 M60 100 L85 115 M170 100 L145 85 M170 100 L145 115 M115 55 L115 85 M115 145 L115 115" stroke="#33482c" stroke-width="2" fill="none"/>
-        </svg>
-      </div>
-      <div id="stageLabel" data-i18n="stageIdle">尚未點火</div>
-
-      <div id="sun">
-        <div class="ray" style="transform:translate(-50%,0) rotate(0deg)"></div>
-        <div class="ray" style="transform:translate(-50%,0) rotate(45deg)"></div>
-        <div class="ray" style="transform:translate(-50%,0) rotate(90deg)"></div>
-        <div class="ray" style="transform:translate(-50%,0) rotate(135deg)"></div>
-      </div>
-
-      <div class="cert" id="cert">
-        <div class="seal" data-i18n="certSeal">祈晴</div>
-        <div class="title" data-i18n="certTitle">燒烏龜．祈晴儀式證明</div>
-        <div class="row"><div class="k" data-i18n="lblPlace">地點</div><div class="v" id="certPlace">—</div></div>
-        <div class="row"><div class="k" data-i18n="lblDate">日期</div><div class="v" id="certDate">—</div></div>
-        <div class="row"><div class="k" data-i18n="lblTime">時間</div><div class="v" id="certTime">—</div></div>
-        <div class="note" id="certNote" style="display:none;"></div>
-        <div class="stamp" data-i18n="certStamp">儀 式 圓 滿 · 願 得 晴 空</div>
-      </div>
+    <div class="form-group">
+      <label data-i18n="labelLocation">地點：</label>
+      <input type="text" id="targetLocation" placeholder="例如：臺北市 / 戶外音樂祭地點">
     </div>
 
+    <div class="form-group">
+      <label data-i18n="labelWish">祈願心願：</label>
+      <textarea id="targetWish" rows="2" placeholder="請賜予我們萬里無雲的好天氣，活動順利！"></textarea>
+    </div>
+
+    <div class="turtle-canvas-container">
+      <svg id="turtleSvg" class="turtle-svg" viewBox="0 0 200 200">
+        <g id="turtleGroup">
+          <ellipse cx="60" cy="60" rx="18" ry="10" transform="rotate(-30 60 60)" fill="#33482c"/>
+          <ellipse cx="140" cy="60" rx="18" ry="10" transform="rotate(30 140 60)" fill="#33482c"/>
+          <ellipse cx="55" cy="140" rx="18" ry="10" transform="rotate(40 55 140)" fill="#33482c"/>
+          <ellipse cx="145" cy="140" rx="18" ry="10" transform="rotate(-40 145 140)" fill="#33482c"/>
+          <path d="M100 160 L100 180 L105 165 Z" fill="#33482c"/>
+          <circle cx="100" cy="38" r="16" fill="#4a6b3f"/>
+          <circle cx="100" cy="100" r="55" fill="#4a6b3f" stroke="#d4a750" stroke-width="3"/>
+          <circle cx="100" cy="100" r="42" fill="none" stroke="#2c3e25" stroke-width="2" stroke-dasharray="6,4"/>
+          <circle cx="100" cy="100" r="18" fill="#ff6a3d"/>
+          <path d="M100 72 L100 78 M100 122 L100 128 M72 100 L78 100 M122 100 L128 100 M80 80 L85 85 M115 115 L120 120 M80 120 L85 115 M115 85 L120 80" stroke="#ffb347" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <button class="btn-burn" onclick="startRitual()" data-i18n="burnBtn">🔥 恭請太陽．點燃儀式</button>
   </div>
 
-  <div class="hint" data-i18n="hintText">這是純娛樂用的紓壓小儀式，點火後烏龜會在畫面上化為灰燼，並產生一張可截圖分享的證明卡片。</div>
+  <!-- 介紹 Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2 class="modal-title" data-i18n="modalTitle">關於「燒烏龜」祈晴儀式演變</h2>
+      <div class="modal-body">
+        <p data-i18n="modalP1">「燒烏龜」是民間祈求好天氣（祈晴）的傳統儀式。每當遇到重大活動、旅遊或露營遇到陰雨時，人們便會透過這項儀式向天空祈願。</p>
+        
+        <h4 style="color:var(--ember-2); margin-bottom:8px;" data-i18n="modalH1">📜 儀式的歷史演變：</h4>
+        
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-title" data-i18n="t1Title">1. 古代：真實龜殼占卜祈晴</div>
+            <div class="timeline-desc" data-i18n="t1Desc">古人視烏龜為通靈靈物，會以灼燒龜殼觀察裂紋來祈求晴天與占卜。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-title" data-i18n="t2Title">2. 近代：護生愛護動物，改為紙上畫龜</div>
+            <div class="timeline-desc" data-i18n="t2Desc">隨著愛護動物意識抬頭，民間不再使用實體龜殼，轉為在紙上畫烏龜（取「烏龜」諧音「烏雲歸去」），並在龜殼劃滿太陽符號後焚燒祈願。</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-title" data-i18n="t3Title">3. 現代：響應環保無煙，演化為電子燒烏龜</div>
+            <div class="timeline-desc" data-i18n="t3Desc">為減少紙張浪費與焚燒造成的空氣污染，現代進一步將儀式數位化，隨時隨地誠心祈願，既不傷動物也不污染環境。</div>
+          </div>
+        </div>
 
-<script>
-// --- 多語言字典設定 ---
-const i18n = {
-  'zh-Hant': {
-    eyebrow: '電 子 儀 式',
-    mainTitle: '燒烏龜',
-    subtitle: '填妥資訊、點燃儀式之火，祈求活動當天萬里晴空。',
-    panelTitle: '儀 式 資 訊',
-    lblPlace: '地點',
-    phPlace: '例：河堤空地 / 廟埕廣場',
-    lblDate: '日期',
-    lblTime: '時間',
-    lblNote: '祈求的活動（選填）',
-    phNote: '例：週末婚禮、畢業典禮、登山行程——祈求當天放晴',
-    btnIgnite: '點 燃 儀 式 之 火 · 祈 晴',
-    btnAgain: '再 燒 一 次',
-    stageIdle: '尚未點火',
-    stageBurning: '點火中……',
-    stageAshing: '化為灰燼……',
-    stageDone: '祈晴完成 ☀',
-    certSeal: '祈晴',
-    certTitle: '燒烏龜．祈晴儀式證明',
-    certStamp: '儀 式 圓 滿 · 願 得 晴 空',
-    hintText: '這是純娛樂用的紓壓小儀式，點火後烏龜會在畫面上化為灰燼，並產生一張可截圖分享的證明卡片。',
-    unprovided: '未提供',
-    year: '年', month: '月', day: '日'
-  },
-  'zh-Hans': {
-    eyebrow: '電 子 仪 式',
-    mainTitle: '烧乌龟',
-    subtitle: '填妥信息、点燃仪式之火，祈求活动当天万里晴空。',
-    panelTitle: '仪 式 信 息',
-    lblPlace: '地点',
-    phPlace: '例：公园草坪 / 广场',
-    lblDate: '日期',
-    lblTime: '时间',
-    lblNote: '祈求的活动（选填）',
-    phNote: '例：周末婚礼、毕业典礼、户外徒步——祈求当天晴朗',
-    btnIgnite: '点 燃 仪 式 之 火 · 祈 晴',
-    btnAgain: '再 烧 一 次',
-    stageIdle: '尚未点火',
-    stageBurning: '点火中……',
-    stageAshing: '化为灰烬……',
-    stageDone: '祈晴完成 ☀',
-    certSeal: '祈晴',
-    certTitle: '烧乌龟．祈晴仪式证明',
-    certStamp: '仪 式 圆 满 · 愿 得 晴 空',
-    hintText: '这是纯娱乐用的解压小仪式，点火后乌龟会在屏幕上化为灰烬，并生成一张可截图分享的证明卡片。',
-    unprovided: '未提供',
-    year: '年', month: '月', day: '日'
-  },
-  'en': {
-    eyebrow: 'DIGITAL RITUAL',
-    mainTitle: 'Turtle Burning',
-    subtitle: 'Fill in details and ignite the flame to pray for a clear, sunny day.',
-    panelTitle: 'RITUAL DETAILS',
-    lblPlace: 'Location',
-    phPlace: 'e.g., Central Park / Beach',
-    lblDate: 'Date',
-    lblTime: 'Time',
-    lblNote: 'Event (Optional)',
-    phNote: 'e.g., Weekend wedding, graduation, hiking trip...',
-    btnIgnite: 'IGNITE THE FIRE FOR SUNSHINE',
-    btnAgain: 'BURN AGAIN',
-    stageIdle: 'Ready',
-    stageBurning: 'Igniting...',
-    stageAshing: 'Turning to ashes...',
-    stageDone: 'Ritual Complete ☀',
-    certSeal: 'SUN',
-    certTitle: 'Turtle Burning Sunshine Cert',
-    certStamp: 'RITUAL COMPLETE · MAY THE SUN SHINE',
-    hintText: 'A fun stress-relief ritual. The turtle turns to ash on screen and generates a shareable certificate.',
-    unprovided: 'N/A',
-    year: '/', month: '/', day: ''
-  }
-};
+        <p style="margin-top:16px; font-style:italic; color:var(--gold);" data-i18n="modalFoot">💡 心誠則靈，詳細填寫時間與地點，將強大的晴天念力傳達給宇宙！</p>
+      </div>
+    </div>
+  </div>
 
-let currentLang = 'zh-Hant';
-let isFinished = false; // 紀錄是否已完成儀式
+  <script>
+    const translations = {
+      'zh-TW': {
+        infoBtn: '儀式由來與用途',
+        title: '電子燒烏龜儀式',
+        subtitle: '誠心畫龜．祈求晴空．撥雲見日',
+        labelDate: '祈晴日期與時間：',
+        labelLocation: '地點：',
+        labelWish: '祈願心願：',
+        burnBtn: '🔥 恭請太陽．點燃儀式',
+        modalTitle: '關於「燒烏龜」祈晴儀式演變',
+        modalP1: '「燒烏龜」是民間祈求好天氣（祈晴）的傳統儀式。每當遇到重大活動、旅遊或露營遇到陰雨時，人們便會透過這項儀式向天空祈願。',
+        modalH1: '📜 儀式的歷史演變：',
+        t1Title: '1. 古代：真實龜殼占卜祈晴',
+        t1Desc: '古人視烏龜為通靈靈物，會以灼燒龜殼觀察裂紋來祈求晴天與占卜。',
+        t2Title: '2. 近代：護生愛護動物，改為紙上畫龜',
+        t2Desc: '隨著愛護動物意識抬頭，民間不再使用實體龜殼，轉為在紙上畫烏龜（取「烏龜」諧音「烏雲歸去」），並在龜殼劃滿太陽符號後焚燒祈願。',
+        t3Title: '3. 現代：響應環保無煙，演化為電子燒烏龜',
+        t3Desc: '為減少紙張浪費與焚燒造成的空氣污染，現代進一步將儀式數位化，隨時隨地誠心祈願，既不傷動物也不污染環境。',
+        modalFoot: '💡 心誠則靈，詳細填寫時間與地點，將強大的晴天念力傳達給宇宙！',
+        alertFinish: '🔥 儀式完成！願陽光普照，撥雲見日！'
+      },
+      'zh-CN': {
+        infoBtn: '仪式由来与用途',
+        title: '电子烧乌龟仪式',
+        subtitle: '诚心画龟．祈求晴空．拨云见日',
+        labelDate: '祈晴日期与时间：',
+        labelLocation: '地点：',
+        labelWish: '祈愿心愿：',
+        burnBtn: '🔥 恭请太阳．点燃仪式',
+        modalTitle: '关于“烧乌龟”祈晴仪式演变',
+        modalP1: '“烧乌龟”是民间祈求好天气（祈晴）的传统仪式。每当遇到重大活动、旅游或露营遇到阴雨时，人们便会通过这项仪式向天空祈愿。',
+        modalH1: '📜 仪式的历史演变：',
+        t1Title: '1. 古代：真实龟壳占卜祈晴',
+        t1Desc: '古人视乌龟为通灵灵物，会以灼烧龟壳观察裂纹来祈求晴天与占卜。',
+        t2Title: '2. 近代：护生爱护动物，改为纸上画龟',
+        t2Desc: '随着爱护动物意识抬头，民间不再使用实体龟壳，转为在纸上画乌龟（取“乌龟”谐音“乌云归去”），并在龟壳划满太阳符号后焚烧祈愿。',
+        t3Title: '3. 现代：响应环保无烟，演化为电子烧乌龟',
+        t3Desc: '为减少纸张浪费与焚烧造成的空气污染，现代进一步将仪式数字化，随时随地诚心祈愿，既不伤动物也不污染环境。',
+        modalFoot: '💡 心诚则灵，详细填写时间与地点，将强大的晴天念力传达给宇宙！',
+        alertFinish: '🔥 仪式完成！愿阳光普照，拨云见日！'
+      },
+      'en': {
+        infoBtn: 'Origin & Evolution',
+        title: 'Digital Turtle Burning',
+        subtitle: 'Draw the Turtle · Pray for Sunshine · Clear the Skies',
+        labelDate: 'Date & Time for Sunshine:',
+        labelLocation: 'Location:',
+        labelWish: 'Your Wish:',
+        burnBtn: '🔥 Invoke the Sun · Start Ritual',
+        modalTitle: 'Evolution of the Ritual',
+        modalP1: '"Turtle Burning" is a traditional folk ritual used to pray for clear, sunny skies before outdoor events or trips threatened by rain.',
+        modalH1: '📜 Historical Evolution:',
+        t1Title: '1. Ancient Times: Real Tortoiseshell Divination',
+        t1Desc: 'Ancestors viewed turtles as sacred creatures and burned actual shells to divine and pray for clear weather.',
+        t2Title: '2. Recent Era: Animal Welfare & Paper Drawings',
+        t2Desc: 'Out of respect for animal life, people switched to drawing turtles on paper (punning "Turtle" with "Dark Clouds Dissipate") covered in sun symbols.',
+        t3Title: '3. Modern Day: Eco-Friendly Digital Ritual',
+        t3Desc: 'To eliminate paper waste and air pollution, the ritual evolved into a digital experience—protecting nature while preserving tradition.',
+        modalFoot: '💡 Sincerity brings results! Fill in your time and location to send sunny vibes to the universe.',
+        alertFinish: '🔥 Ritual Complete! May the sun shine brightly upon your day!'
+      }
+    };
 
-function changeLanguage(lang){
-  currentLang = lang;
-  const dict = i18n[lang];
+    let currentLang = 'zh-TW';
 
-  // 靜態文字替換
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if(dict[key]) el.textContent = dict[key];
-  });
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      if(lang === 'zh-TW') document.querySelectorAll('.lang-btn')[0].classList.add('active');
+      if(lang === 'zh-CN') document.querySelectorAll('.lang-btn')[1].classList.add('active');
+      if(lang === 'en') document.querySelectorAll('.lang-btn')[2].classList.add('active');
 
-  // Placeholder 替換
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    const key = el.getAttribute('data-i18n-ph');
-    if(dict[key]) el.placeholder = dict[key];
-  });
-
-  // 按鈕動態狀態文字更新
-  const btn = document.getElementById('igniteBtn');
-  if(isFinished) {
-    btn.textContent = dict.btnAgain;
-  }
-
-  // 證書內的日期格式刷新 (如果已填寫)
-  const dateVal = document.getElementById('date').value;
-  if(dateVal && document.getElementById('certDate').textContent !== dict.unprovided){
-    document.getElementById('certDate').textContent = fmtDate(dateVal);
-  }
-}
-
-const canvas = document.getElementById('fx');
-const ctx = canvas.getContext('2d');
-const stageWrap = document.getElementById('stageWrap');
-let particles = [];
-let animRunning = false;
-
-function resizeCanvas(){
-  const rect = stageWrap.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-function spawnParticle(cx, cy, kind){
-  const angle = Math.random() * Math.PI * 2;
-  const speed = kind === 'ember' ? (0.6 + Math.random()*1.4) : (0.2 + Math.random()*0.5);
-  particles.push({
-    x: cx + (Math.random()-0.5)*40,
-    y: cy + (Math.random()-0.5)*20,
-    vx: Math.cos(angle)*speed*0.3,
-    vy: -Math.abs(Math.sin(angle)*speed) - (kind==='ember'?1.2:0.4),
-    life: 0,
-    maxLife: kind==='ember' ? (40+Math.random()*30) : (70+Math.random()*50),
-    size: kind==='ember' ? (1.5+Math.random()*2.5) : (3+Math.random()*6),
-    kind
-  });
-}
-
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.life++;
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy *= 0.985;
-    p.vx *= 0.99;
-    const t = p.life / p.maxLife;
-    if(p.kind === 'ember'){
-      ctx.globalAlpha = Math.max(0, 1-t);
-      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*2);
-      grad.addColorStop(0, 'rgba(255,200,120,1)');
-      grad.addColorStop(0.5, 'rgba(255,106,61,0.8)');
-      grad.addColorStop(1, 'rgba(140,31,43,0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fill();
-    } else {
-      ctx.globalAlpha = Math.max(0, 0.35*(1-t));
-      ctx.fillStyle = '#5a5a5a';
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fill();
+      document.querySelectorAll('[data-i18n]').forEach(elem => {
+        const key = elem.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          elem.innerHTML = translations[lang][key];
+        }
+      });
     }
-  });
-  ctx.globalAlpha = 1;
-  particles = particles.filter(p => p.life < p.maxLife);
 
-  if(animRunning){
-    const rect = stageWrap.getBoundingClientRect();
-    const cx = rect.width/2;
-    const cy = rect.height/2 + 20;
-    for(let i=0;i<3;i++) spawnParticle(cx, cy, 'ember');
-    if(Math.random() < 0.3) spawnParticle(cx, cy-10, 'smoke');
-  }
+    function openModal() {
+      document.getElementById('infoModal').classList.add('active');
+    }
 
-  if(animRunning || particles.length > 0){
-    requestAnimationFrame(animate);
-  }
-}
+    function closeModal() {
+      document.getElementById('infoModal').classList.remove('active');
+    }
 
-function fmtDate(v){
-  if(!v) return '';
-  const dict = i18n[currentLang];
-  const [y,m,d] = v.split('-');
-  if(currentLang === 'en') {
-    return `${y}/${parseInt(m)}/${parseInt(d)}`;
-  }
-  return `${y} ${dict.year} ${parseInt(m)} ${dict.month} ${parseInt(d)} ${dict.day}`;
-}
-function fmtTime(v){
-  if(!v) return '';
-  return v;
-}
-
-function ignite(){
-  const btn = document.getElementById('igniteBtn');
-  const label = document.getElementById('stageLabel');
-  const dict = i18n[currentLang];
-
-  btn.disabled = true;
-  label.textContent = dict.stageBurning;
-  isFinished = false;
-
-  stageWrap.classList.remove('sunny', 'ashout', 'charred');
-  document.getElementById('sun').classList.remove('show');
-  document.getElementById('cert').classList.remove('show');
-  document.querySelectorAll('#turtleBox .shell, #turtleBox .part').forEach(el => { el.style.fill = ''; });
-  void stageWrap.offsetWidth; // reflow
-
-  stageWrap.classList.add('charring');
-  animRunning = true;
-  animate();
-
-  const shellEls = document.querySelectorAll('#turtleBox .shell, #turtleBox .part');
-  requestAnimationFrame(()=>{
-    shellEls.forEach(el => { el.style.fill = '#1a1512'; });
-  });
-
-  setTimeout(()=>{
-    label.textContent = i18n[currentLang].stageAshing;
-    stageWrap.classList.remove('charring');
-    stageWrap.classList.add('charred');
-    stageWrap.classList.add('ashout');
-  }, 2600);
-
-  setTimeout(()=>{
-    animRunning = false;
-    const curDict = i18n[currentLang];
-    label.textContent = curDict.stageDone;
-    stageWrap.classList.add('sunny');
-    document.getElementById('sun').classList.add('show');
-
-    document.getElementById('certPlace').textContent = document.getElementById('place').value.trim() || curDict.unprovided;
-    document.getElementById('certDate').textContent = fmtDate(document.getElementById('date').value) || curDict.unprovided;
-    document.getElementById('certTime').textContent = fmtTime(document.getElementById('time').value) || curDict.unprovided;
-
-    const note = document.getElementById('note').value.trim();
-    const noteEl = document.getElementById('certNote');
-    if(note){ noteEl.textContent = note; noteEl.style.display = 'block'; }
-    else{ noteEl.style.display = 'none'; }
-
-    document.getElementById('cert').classList.add('show');
-    btn.disabled = false;
-    isFinished = true;
-    btn.textContent = curDict.btnAgain;
-  }, 4200);
-}
-</script>
-
+    function startRitual() {
+      const svg = document.getElementById('turtleSvg');
+      svg.classList.add('burn-animation');
+      setTimeout(() => {
+        alert(translations[currentLang].alertFinish);
+        svg.classList.remove('burn-animation');
+      }, 2500);
+    }
+  </script>
 </body>
 </html>
