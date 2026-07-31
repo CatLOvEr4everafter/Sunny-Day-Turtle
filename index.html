@@ -290,17 +290,17 @@
   <div class="container">
     <div class="form-group">
       <label data-i18n="labelDate">祈晴日期與時間：</label>
-      <input type="text" id="targetDate" placeholder="例如：2026/08/15 全天">
+      <input type="text" id="targetDate" data-i18n-ph="phDate" placeholder="例如：2026/08/15 全天">
     </div>
 
     <div class="form-group">
       <label data-i18n="labelLocation">地點：</label>
-      <input type="text" id="targetLocation" placeholder="例如：臺北市 / 戶外音樂祭地點">
+      <input type="text" id="targetLocation" data-i18n-ph="phLocation" placeholder="例如：臺北市 / 戶外音樂祭地點">
     </div>
 
     <div class="form-group">
       <label data-i18n="labelWish">祈願心願：</label>
-      <textarea id="targetWish" rows="2" placeholder="請賜予我們萬里無雲的好天氣，活動順利！"></textarea>
+      <textarea id="targetWish" rows="2" data-i18n-ph="phWish" placeholder="請賜予我們萬里無雲的好天氣，活動順利！"></textarea>
     </div>
 
     <div class="turtle-canvas-container">
@@ -360,8 +360,11 @@
         title: '電子燒烏龜儀式',
         subtitle: '誠心畫龜．祈求晴空．撥雲見日',
         labelDate: '祈晴日期與時間：',
+        phDate: '例如：2026/08/15 全天',
         labelLocation: '地點：',
+        phLocation: '例如：臺北市 / 戶外音樂祭地點',
         labelWish: '祈願心願：',
+        phWish: '請賜予我們萬里無雲的好天氣，活動順利！',
         burnBtn: '🔥 恭請太陽．點燃儀式',
         modalTitle: '關於「燒烏龜」祈晴儀式演變',
         modalP1: '「燒烏龜」是民間祈求好天氣（祈晴）的傳統儀式。每當遇到重大活動、旅遊或露營遇到陰雨時，人們便會透過這項儀式向天空祈願。',
@@ -380,12 +383,15 @@
         title: '电子烧乌龟仪式',
         subtitle: '诚心画龟．祈求晴空．拨云见日',
         labelDate: '祈晴日期与时间：',
+        phDate: '例如：2026/08/15 全天',
         labelLocation: '地点：',
+        phLocation: '例如：台北市 / 户外音乐祭地点',
         labelWish: '祈愿心愿：',
+        phWish: '请赐予我们万里无云的好天气，活动顺利！',
         burnBtn: '🔥 恭请太阳．点燃仪式',
         modalTitle: '关于“烧乌龟”祈晴仪式演变',
         modalP1: '“烧乌龟”是民间祈求好天气（祈晴）的传统仪式。每当遇到重大活动、旅游或露营遇到阴雨时，人们便会通过这项仪式向天空祈愿。',
-        modalH1: '📜 仪式的历史演变：',
+        modalH1: '📜 仪式的历史演变的：',
         t1Title: '1. 古代：真实龟壳占卜祈晴',
         t1Desc: '古人视乌龟为通灵灵物，会以灼烧龟壳观察裂纹来祈求晴天与占卜。',
         t2Title: '2. 近代：护生爱护动物，改为纸上画龟',
@@ -400,8 +406,11 @@
         title: 'Digital Turtle Burning',
         subtitle: 'Draw the Turtle · Pray for Sunshine · Clear the Skies',
         labelDate: 'Date & Time for Sunshine:',
+        phDate: 'e.g., 2026/08/15 All Day',
         labelLocation: 'Location:',
+        phLocation: 'e.g., Taipei City / Outdoor Festival Area',
         labelWish: 'Your Wish:',
+        phWish: 'Please grant us clear skies and sunny weather for a smooth event!',
         burnBtn: '🔥 Invoke the Sun · Start Ritual',
         modalTitle: 'Evolution of the Ritual',
         modalP1: '"Turtle Burning" is a traditional folk ritual used to pray for clear, sunny skies before outdoor events or trips threatened by rain.',
@@ -426,10 +435,19 @@
       if(lang === 'zh-CN') document.querySelectorAll('.lang-btn')[1].classList.add('active');
       if(lang === 'en') document.querySelectorAll('.lang-btn')[2].classList.add('active');
 
+      // 更新一般內文
       document.querySelectorAll('[data-i18n]').forEach(elem => {
         const key = elem.getAttribute('data-i18n');
         if (translations[lang][key]) {
           elem.innerHTML = translations[lang][key];
+        }
+      });
+
+      // 更新 placeholder 提示文字
+      document.querySelectorAll('[data-i18n-ph]').forEach(elem => {
+        const key = elem.getAttribute('data-i18n-ph');
+        if (translations[lang][key]) {
+          elem.setAttribute('placeholder', translations[lang][key]);
         }
       });
     }
